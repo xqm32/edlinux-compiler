@@ -1,5 +1,6 @@
 import { $ } from "bun";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 
 interface Body {
   language: string;
@@ -8,6 +9,8 @@ interface Body {
 }
 
 const app = new Hono();
+
+app.use(cors());
 
 app.post("/", async (c) => {
   const { language, code, input } = await c.req.json<Body>();
