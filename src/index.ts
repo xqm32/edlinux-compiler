@@ -22,7 +22,7 @@ app.post("/", async (c) => {
 
   // Compile the source code
   const binaryFile = `${hash}`;
-  const { stderr, exitCode } = await $`gcc ${sourceFile} -o ${binaryFile}`
+  const { stderr, exitCode } = await $`zig cc ${sourceFile} -o ${binaryFile}`
     .nothrow()
     .quiet();
   await $`rm ${sourceFile}`;
