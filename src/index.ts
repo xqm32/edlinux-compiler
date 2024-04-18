@@ -36,6 +36,8 @@ app.post("/", async (c) => {
     .quiet();
   await $`rm ${sourceFile}`;
   if (exitCode !== 0) {
+    // Remove empty binary file
+    await $`rm -f ${binaryFile}`;
     return c.json({ message: "Compile Error", stderr: stderr.toString() });
   }
 
