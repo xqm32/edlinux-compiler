@@ -38,29 +38,43 @@ app.post("/", async (c) => {
   if (exitCode !== 0) {
     // Remove empty binary file
     await $`rm -f ${binaryFile}`;
-    return c.json({ message: "Compile Error", stderr: stderr.toString() });
+    return c.json({
+      code: "CE",
+      message: "编译错误",
+      stderr: stderr.toString(),
+    });
   }
 
-  let outputs = []
+  let outputs = [];
   // Run the compiled binary
   for (const { input, output } of cases) {
-    const { stdout, stderr, exitCode } = await $`echo ${input} | ./${binaryFile}`
-      .nothrow()
-      .quiet();
+    const { stdout, stderr, exitCode } =
+      await $`echo ${input} | ./${binaryFile}`.nothrow().quiet();
     if (exitCode !== 0) {
       await $`rm ${binaryFile}`;
-      return c.json({ message: "Runtime Error", stderr: stderr.toString() });
+      return c.json({
+        code: "RE",
+        message: "运行错误",
+        stderr: stderr.toString(),
+      });
     }
     if (output === undefined) {
       outputs.push(stdout.toString());
-    }
-    else if (stdout.toString() !== output) {
+    } else if (stdout.toString() !== output) {
       await $`rm ${binaryFile}`;
-      return c.json({ message: "Wrong Answer", stderr: `Output: ${stdout.toString()}\nExpected: ${output}` });
+      return c.json({
+        code: "WA",
+        message: "答案错误",
+        stderr: `预期输出：\n${output}\n实际输出：\n${stdout.toString()}`,
+      });
     }
   }
   await $`rm ${binaryFile}`;
-  return c.json({ message: "Accepted", outputs });
+  if (outputs.length > 0) {
+    return c.json({ code: "TEST", message: "运行完成", outputs });
+  } else {
+    return c.json({ code: "AC", message: "全部正确" });
+  }
 });
 
 export default app;
