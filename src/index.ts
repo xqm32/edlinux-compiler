@@ -56,7 +56,7 @@ app.post("/", async (c) => {
     }
     else if (stdout.toString() !== output) {
       await $`rm ${binaryFile}`;
-      return c.json({ message: "Wrong Answer", stdout: stdout.toString() });
+      return c.json({ message: "Wrong Answer", stderr: `Output: ${stdout.toString()}\nExpected: ${output}` });
     }
   }
   await $`rm ${binaryFile}`;
